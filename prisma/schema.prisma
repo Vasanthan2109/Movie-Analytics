@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activities  UserActivity[]
+  watchlist   Watchlist[]
+}
+
+model Genre {
+  id   String @id @default(cuid())
+  name String @unique
+
+  movies MovieGenre[]
+}
+
+model Movie {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  releaseYear     Int
+  runtime         Int
+  language        String
+  country         String
+  ageCertification String?
+  rating          Float
+  popularity      Float
+  voteCount       Int
+  directorId      String?
+  posterUrl       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  director   Person?         @relation("Director", fields: [directorId], references: [id])
+  genres     MovieGenre[]
+  cast       MovieCast[]
+  streaming  MovieStreaming[]
+  activities UserActivity[]
+  watchlist  Watchlist[]
+}
+
+model Person {
+  id        String   @id @default(cuid())
+  name      String
+  profileUrl String?
+
+  directed   Movie[]      @relation("Director")
+  castRoles  MovieCast[]
+}
+
+model MovieGenre {
+  movieId String
+  genreId String
+  movie   Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, genreId])
+}
+
+model MovieCast {
+  movieId    String
+  personId   String
+  character  String
+  movie      Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  person     Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, personId])
+}
+
+model StreamingPlatform {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+  brandColor  String
+  logoUrl     String?
+
+  movies MovieStreaming[]
+}
+
+model MovieStreaming {
+  movieId    String
+  platformId String
+  movie      Movie             @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  platform   StreamingPlatform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, platformId])
+}
+
+model UserActivity {
+  id         String   @id @default(cuid())
+  userId     String
+  movieId    String
+  activityType String   // VIEW, LIKE, RATE
+  userRating Float?
+  createdAt  DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([movieId])
+}
+
+model Watchlist {
+  id        String   @id @default(cuid())
+  userId    String
+  movieId   String
+  status    String   @default("PLAN_TO_WATCH") // PLAN_TO_WATCH, WATCHING, COMPLETED
+  addedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@index([userId])
+}
