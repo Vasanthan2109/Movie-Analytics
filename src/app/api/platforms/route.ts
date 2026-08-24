@@ -6,21 +6,25 @@ export async function GET() {
     include: {
       movies: {
         include: {
-          genres: { include: { genre: true } },
+          movie: {
+            include: {
+              genres: { include: { genre: true } },
+            },
+          },
         },
       },
-      _count: { select: { movies: true } },
     },
     orderBy: { name: 'asc' },
   });
 
   const result = platforms.map((p) => {
-    const movies = p.movies;
-    const avgRating = movies.length > 0
-      ? +(movies.reduce((s, m) => s + m.rating, 0) / movies.length).toFixed(1)
+    const movies = p.movies.map((ms) => ms.movie);
+    const movieCount = movies.length;
+    const avgRating = movieCount > 0
+      ? +(movies.reduce((s, m) => s + m.rating, 0) / movieCount).toFixed(1)
       : 0;
-    const avgPopularity = movies.length > 0
-      ? +(movies.reduce((s, m) => s + m.popularity, 0) / movies.length).toFixed(1)
+    const avgPopularity = movieCount > 0
+      ? +(movies.reduce((s, m) => s + m.popularity, 0) / movieCount).toFixed(1)
       : 0;
 
     // Genre breakdown
@@ -42,7 +46,7 @@ export async function GET() {
       name: p.name,
       description: p.description,
       brandColor: p.brandColor,
-      movieCount: p._count.movies,
+      movieCount,
       avgRating,
       avgPopularity,
       topGenres,
