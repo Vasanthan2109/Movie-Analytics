@@ -43,7 +43,7 @@ interface MovieDetail {
 }
 
 export function MovieDetailDialog({ movieId, open, onClose }: { movieId: string | null; open: boolean; onClose: () => void }) {
-  const { userId, triggerRefresh } = useAppStore();
+  const { userId, triggerRefresh, refreshKey } = useAppStore();
   const [movie, setMovie] = useState<MovieDetail | null>(null);
   const [similar, setSimilar] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -66,7 +66,7 @@ export function MovieDetailDialog({ movieId, open, onClose }: { movieId: string 
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [movieId, open, userId]);
+  }, [movieId, open, userId, refreshKey]);
 
   const handleWatchlist = async () => {
     if (!movie) return;

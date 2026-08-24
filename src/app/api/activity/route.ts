@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get('userId') || 'cmt6vc5pl0040t03x6xgkez59';
+  const userId = req.nextUrl.searchParams.get('userId') || 'cmt7ech7d0040ngkzxi5iarq2';
 
   const activities = await db.userActivity.findMany({
     where: { userId },
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
-  const userId = sp.get('userId') || 'cmt6vc5pl0040t03x6xgkez59';
+  const userId = sp.get('userId') || 'cmt7ech7d0040ngkzxi5iarq2';
   const movieId = sp.get('movieId');
   const activityType = sp.get('type');
 

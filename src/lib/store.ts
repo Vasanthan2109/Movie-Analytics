@@ -26,7 +26,7 @@ export const useAppStore = create<AppState>((set) => ({
   setActiveSection: (s) => set({ activeSection: s }),
   selectedMovieId: null,
   setSelectedMovieId: (id) => set({ selectedMovieId: id }),
-  userId: 'cmt6vc5pl0040t03x6xgkez59', // default seeded user
+  userId: 'cmt7ech7d0040ngkzxi5iarq2', // default seeded user
   setUserId: (id) => set({ userId: id }),
   refreshKey: 0,
   triggerRefresh: () => set((s) => ({ refreshKey: s.refreshKey + 1 })),

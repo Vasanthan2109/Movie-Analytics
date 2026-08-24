@@ -71,3 +71,30 @@ Stage Summary:
 - Fixed the Prisma include chain for the MovieStreaming join table
 - All 8 app sections + movie detail dialog verified working via agent-browser
 - App is fully functional with 47 movies, 20 genres, 6 platforms, 1 user, 8 watchlist items, 15 activities
+
+---
+Task ID: 3
+Agent: Main Orchestrator
+Task: Migrate database from SQLite to Neon PostgreSQL
+
+Work Log:
+- Installed `pg` driver for PostgreSQL support in Prisma
+- Updated `prisma/schema.prisma`: changed datasource provider from `sqlite` to `postgresql`
+- Updated `.env` with non-pooled Neon PostgreSQL connection URL (pooled URL caused connection failures)
+- Ran `prisma db push --accept-data-loss` to create all tables in Neon PostgreSQL
+- Seeded database: 47 movies, 20 genres, 6 platforms, 42 people, 140 genre links, 29 cast links, 90 streaming links, 1 user, 8 watchlist items, 15 activities
+- Updated `src/lib/db.ts` to use `dotenv.config({ override: true })` because the shell env had a pre-set SQLite DATABASE_URL that dotenv wouldn't override by default
+- Updated all hardcoded user IDs from `cmt6vc5pl0040t03x6xgkez59` (SQLite) to `cmt7ech7d0040ngkzxi5iarq2` (PostgreSQL) across 5 API routes and the Zustand store
+- Fixed `watchlist POST` to handle P2002 unique constraint (duplicate add) gracefully by returning the existing entry instead of 500
+- Fixed `MovieDetailDialog` to re-fetch movie details on `refreshKey` change so watchlist/like button labels update after toggling
+- Browser-tested all 8 sections + movie detail dialog with live PostgreSQL
+- Verified all write operations: LIKE, RATE, VIEW activity + watchlist add/remove
+- Verified watchlist button label updates in real-time after toggle
+- All 10 API routes return 200, zero browser console errors, lint passes clean
+
+Stage Summary:
+- Successfully migrated from local SQLite to remote Neon PostgreSQL (us-east-2)
+- Non-pooled connection URL required for Prisma CLI operations (schema push/seed)
+- dotenv override needed because shell environment had cached SQLite DATABASE_URL
+- Discovered and fixed 2 bugs exposed by PostgreSQL's stricter foreign key constraints: watchlist duplicate handling and dialog re-fetch after state changes
+- API response times ~2-5s (vs <1s with SQLite) due to network latency — expected for remote DB

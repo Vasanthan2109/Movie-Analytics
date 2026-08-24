@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   const weightedScore = +((movie.voteCount / (movie.voteCount + m)) * movie.rating + (m / (movie.voteCount + m)) * C).toFixed(4);
 
   // Check if user has this in watchlist or activity
-  const userId = req.nextUrl.searchParams.get('userId') || 'cmt6vc5pl0040t03x6xgkez59';
+  const userId = req.nextUrl.searchParams.get('userId') || 'cmt7ech7d0040ngkzxi5iarq2';
   const [watchlistEntry, activities] = await Promise.all([
     db.watchlist.findUnique({ where: { userId_movieId: { userId, movieId: id } } }),
     db.userActivity.findMany({ where: { userId, movieId: id } }),

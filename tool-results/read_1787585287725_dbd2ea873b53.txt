@@ -1,0 +1,573 @@
+     1→import { PrismaClient } from '@prisma/client';
+     2→
+     3→const prisma = new PrismaClient();
+     4→
+     5→async function main() {
+     6→  // --- Genres ---
+     7→  const genreData = [
+     8→    'Action', 'Adventure', 'Animation', 'Comedy', 'Crime',
+     9→    'Documentary', 'Drama', 'Fantasy', 'Horror', 'Mystery',
+    10→    'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western',
+    11→    'Musical', 'Family', 'Biography', 'History', 'Sport'
+    12→  ];
+    13→  const genres: Record<string, string> = {};
+    14→  for (const name of genreData) {
+    15→    const g = await prisma.genre.create({ data: { name } });
+    16→    genres[name] = g.id;
+    17→  }
+    18→
+    19→  // --- Streaming Platforms ---
+    20→  const platforms = await Promise.all([
+    21→    prisma.streamingPlatform.create({ data: { name: 'Netflix', description: 'World\'s leading streaming service with original content and vast library', brandColor: '#E50914' } }),
+    22→    prisma.streamingPlatform.create({ data: { name: 'Amazon Prime Video', description: 'Amazon\'s streaming platform with movies, TV shows, and originals', brandColor: '#00A8E1' } }),
+    23→    prisma.streamingPlatform.create({ data: { name: 'Disney+', description: 'Home of Disney, Pixar, Marvel, Star Wars, and National Geographic', brandColor: '#113CCF' } }),
+    24→    prisma.streamingPlatform.create({ data: { name: 'HBO Max', description: 'Premium streaming with HBO originals, Warner Bros. films, and more', brandColor: '#B026FF' } }),
+    25→    prisma.streamingPlatform.create({ data: { name: 'Apple TV+', description: 'Apple\'s streaming service featuring original content from top creators', brandColor: '#A2AAAD' } }),
+    26→    prisma.streamingPlatform.create({ data: { name: 'Hulu', description: 'Streaming service with next-day TV, originals, and add-on options', brandColor: '#1CE783' } }),
+    27→  ]);
+    28→  const platformMap: Record<string, string> = {};
+    29→  platforms.forEach(p => { platformMap[p.name] = p.id; });
+    30→
+    31→  // --- People (Directors + Actors) ---
+    32→  const peopleData = [
+    33→    { name: 'Christopher Nolan' }, { name: 'Martin Scorsese' }, { name: 'Quentin Tarantino' },
+    34→    { name: 'Denis Villeneuve' }, { name: 'Ridley Scott' }, { name: 'Steven Spielberg' },
+    35→    { name: 'Wes Anderson' }, { name: 'Bong Joon-ho' }, { name: 'Jordan Peele' },
+    36→    { name: 'Greta Gerwig' }, { name: 'James Cameron' }, { name: 'Peter Jackson' },
+    37→    { name: 'David Fincher' }, { name: 'Guy Ritchie' }, { name: 'Taika Waititi' },
+    38→    { name: 'Timothée Chalamet' }, { name: 'Leonardo DiCaprio' }, { name: 'Brad Pitt' },
+    39→    { name: 'Cate Blanchett' }, { name: 'Meryl Streep' }, { name: 'Tom Hanks' },
+    40→    { name: 'Scarlett Johansson' }, { name: 'Robert Downey Jr.' }, { name: 'Florence Pugh' },
+    41→    { name: 'Pedro Pascal' }, { name: 'Zendaya' }, { name: 'Margot Robbie' },
+    42→    { name: 'Keanu Reeves' }, { name: 'Oscar Isaac' }, { name: 'Saoirse Ronan' },
+    43→    { name: 'Joaquin Phoenix' }, { name: 'Adam Driver' }, { name: 'Ana de Armas' },
+    44→    { name: 'Austin Butler' }, { name: 'Paul Mescal' }, { name: 'Sydney Sweeney' },
+    45→    { name: 'Will Smith' }, { name: 'Matt Damon' }, { name: 'Christian Bale' },
+    46→    { name: 'Emily Blunt' }, { name: 'Ryan Gosling' }, { name: 'Emma Stone' },
+    47→  ];
+    48→  const people: Record<string, string> = {};
+    49→  for (const p of peopleData) {
+    50→    const person = await prisma.person.create({ data: { name: p.name } });
+    51→    people[p.name] = person.id;
+    52→  }
+    53→
+    54→  // --- Movies ---
+    55→  const movies = [
+    56→    {
+    57→      title: 'The Dark Knight', description: 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
+    58→      releaseYear: 2008, runtime: 152, language: 'English', country: 'USA', ageCertification: 'PG-13',
+    59→      rating: 9.0, popularity: 87.5, voteCount: 2850000,
+    60→      directorId: people['Christopher Nolan'],
+    61→      genreNames: ['Action', 'Crime', 'Drama', 'Thriller'],
+    62→      castNames: ['Christian Bale', 'Heath Ledger', 'Aaron Eckhart'],
+    63→      platformNames: ['Netflix', 'HBO Max'],
+    64→    },
+    65→    {
+    66→      title: 'Inception', description: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
+    67→      releaseYear: 2010, runtime: 148, language: 'English', country: 'USA', ageCertification: 'PG-13',
+    68→      rating: 8.8, popularity: 91.2, voteCount: 2300000,
+    69→      directorId: people['Christopher Nolan'],
+    70→      genreNames: ['Action', 'Sci-Fi', 'Thriller'],
+    71→      castNames: ['Leonardo DiCaprio', 'Tom Hardy', 'Elliot Page'],
+    72→      platformNames: ['Amazon Prime Video', 'HBO Max'],
+    73→    },
+    74→    {
+    75→      title: 'Interstellar', description: 'When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot is tasked to pilot a spacecraft along with a team of researchers to find a new planet for humans.',
+    76→      releaseYear: 2014, runtime: 169, language: 'English', country: 'USA', ageCertification: 'PG-13',
+    77→      rating: 8.7, popularity: 88.9, voteCount: 1950000,
+    78→      directorId: people['Christopher Nolan'],
+    79→      genreNames: ['Adventure', 'Drama', 'Sci-Fi'],
+    80→      castNames: ['Matthew McConaughey', 'Anne Hathaway', 'Jessica Chastain'],
+    81→      platformNames: ['Amazon Prime Video', 'Paramount+'],
+    82→    },
+    83→    {
+    84→      title: 'Oppenheimer', description: 'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.',
+    85→      releaseYear: 2023, runtime: 180, language: 'English', country: 'USA', ageCertification: 'R',
+    86→      rating: 8.3, popularity: 95.1, voteCount: 850000,
+    87→      directorId: people['Christopher Nolan'],
+    88→      genreNames: ['Biography', 'Drama', 'History'],
+    89→      castNames: ['Cillian Murphy', 'Emily Blunt', 'Robert Downey Jr.'],
+    90→      platformNames: ['Apple TV+', 'Amazon Prime Video'],
+    91→    },
+    92→    {
+    93→      title: 'Pulp Fiction', description: 'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.',
+    94→      releaseYear: 1994, runtime: 154, language: 'English', country: 'USA', ageCertification: 'R',
+    95→      rating: 8.9, popularity: 82.3, voteCount: 2100000,
+    96→      directorId: people['Quentin Tarantino'],
+    97→      genreNames: ['Crime', 'Drama'],
+    98→      castNames: ['John Travolta', 'Uma Thurman', 'Samuel L. Jackson'],
+    99→      platformNames: ['Netflix', 'Hulu'],
+   100→    },
+   101→    {
+   102→      title: 'Kill Bill: Vol. 1', description: 'After awakening from a four-year coma, a former assassin wreaks vengeance on the team of assassins who betrayed her.',
+   103→      releaseYear: 2003, runtime: 111, language: 'English', country: 'USA', ageCertification: 'R',
+   104→      rating: 8.2, popularity: 75.6, voteCount: 1200000,
+   105→      directorId: people['Quentin Tarantino'],
+   106→      genreNames: ['Action', 'Crime', 'Thriller'],
+   107→      castNames: ['Uma Thurman', 'Lucy Liu', 'Vivica A. Fox'],
+   108→      platformNames: ['HBO Max'],
+   109→    },
+   110→    {
+   111→      title: 'Dune: Part Two', description: 'Paul Atreides unites with the Fremen while on a warpath of revenge against the conspirators who destroyed his family.',
+   112→      releaseYear: 2024, runtime: 166, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   113→      rating: 8.5, popularity: 96.8, voteCount: 620000,
+   114→      directorId: people['Denis Villeneuve'],
+   115→      genreNames: ['Action', 'Adventure', 'Drama', 'Sci-Fi'],
+   116→      castNames: ['Timothée Chalamet', 'Zendaya', 'Austin Butler'],
+   117→      platformNames: ['HBO Max', 'Amazon Prime Video'],
+   118→    },
+   119→    {
+   120→      title: 'Blade Runner 2049', description: 'Young Blade Runner K\'s discovery of a long-buried secret leads him to track down former Blade Runner Rick Deckard, who\'s been missing for thirty years.',
+   121→      releaseYear: 2017, runtime: 164, language: 'English', country: 'USA', ageCertification: 'R',
+   122→      rating: 8.0, popularity: 79.4, voteCount: 680000,
+   123→      directorId: people['Denis Villeneuve'],
+   124→      genreNames: ['Action', 'Drama', 'Mystery', 'Sci-Fi'],
+   125→      castNames: ['Ryan Gosling', 'Harrison Ford', 'Ana de Armas'],
+   126→      platformNames: ['HBO Max', 'Hulu'],
+   127→    },
+   128→    {
+   129→      title: 'Arrival', description: 'A linguist works with the military to communicate with alien lifeforms after twelve mysterious spacecraft appear around the world.',
+   130→      releaseYear: 2016, runtime: 116, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   131→      rating: 7.9, popularity: 76.1, voteCount: 740000,
+   132→      directorId: people['Denis Villeneuve'],
+   133→      genreNames: ['Drama', 'Mystery', 'Sci-Fi'],
+   134→      castNames: ['Amy Adams', 'Jeremy Renner', 'Forest Whitaker'],
+   135→      platformNames: ['HBO Max', 'Hulu'],
+   136→    },
+   137→    {
+   138→      title: 'Parasite', description: 'Greed and class discrimination threaten the newly formed symbiotic relationship between the wealthy Park family and the destitute Kim clan.',
+   139→      releaseYear: 2019, runtime: 132, language: 'Korean', country: 'South Korea', ageCertification: 'R',
+   140→      rating: 8.5, popularity: 90.3, voteCount: 870000,
+   141→      directorId: people['Bong Joon-ho'],
+   142→      genreNames: ['Comedy', 'Drama', 'Thriller'],
+   143→      castNames: ['Song Kang-ho', 'Lee Sun-kyun', 'Cho Yeo-jeong'],
+   144→      platformNames: ['Hulu', 'Amazon Prime Video'],
+   145→    },
+   146→    {
+   147→      title: 'Get Out', description: 'A young African-American visits his white girlfriend\'s parents for the weekend, where his simmering uneasiness about their reception of him eventually reaches a boiling point.',
+   148→      releaseYear: 2017, runtime: 104, language: 'English', country: 'USA', ageCertification: 'R',
+   149→      rating: 7.7, popularity: 78.5, voteCount: 680000,
+   150→      directorId: people['Jordan Peele'],
+   151→      genreNames: ['Horror', 'Mystery', 'Thriller'],
+   152→      castNames: ['Daniel Kaluuya', 'Allison Williams', 'Bradley Whitford'],
+   153→      platformNames: ['Netflix', 'Hulu'],
+   154→    },
+   155→    {
+   156→      title: 'Barbie', description: 'Barbie suffers a crisis that leads her to question her world and her existence.',
+   157→      releaseYear: 2023, runtime: 114, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   158→      rating: 7.0, popularity: 97.2, voteCount: 520000,
+   159→      directorId: people['Greta Gerwig'],
+   160→      genreNames: ['Adventure', 'Comedy', 'Fantasy'],
+   161→      castNames: ['Margot Robbie', 'Ryan Gosling', 'America Ferrera'],
+   162→      platformNames: ['Amazon Prime Video', 'HBO Max'],
+   163→    },
+   164→    {
+   165→      title: 'The Grand Budapest Hotel', description: 'A writer encounters the owner of an aging high-class hotel, who tells him of his early years serving as a lobby boy.',
+   166→      releaseYear: 2014, runtime: 99, language: 'English', country: 'Germany', ageCertification: 'R',
+   167→      rating: 8.1, popularity: 74.3, voteCount: 820000,
+   168→      directorId: people['Wes Anderson'],
+   169→      genreNames: ['Adventure', 'Comedy', 'Crime'],
+   170→      castNames: ['Ralph Fiennes', 'F. Murray Abraham', 'Tony Revolori'],
+   171→      platformNames: ['Disney+', 'Hulu'],
+   172→    },
+   173→    {
+   174→      title: 'Avatar', description: 'A paraplegic Marine is dispatched to the moon Pandora on a unique mission becomes torn between following his orders and protecting the world he feels is his home.',
+   175→      releaseYear: 2009, runtime: 162, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   176→      rating: 7.9, popularity: 85.7, voteCount: 1300000,
+   177→      directorId: people['James Cameron'],
+   178→      genreNames: ['Action', 'Adventure', 'Fantasy', 'Sci-Fi'],
+   179→      castNames: ['Sam Worthington', 'Zoe Saldana', 'Sigourney Weaver'],
+   180→      platformNames: ['Disney+', 'Hulu'],
+   181→    },
+   182→    {
+   183→      title: 'Avatar: The Way of Water', description: 'Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. He must protect the oceanic Metkayina clan from the RDA\'s threat.',
+   184→      releaseYear: 2022, runtime: 192, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   185→      rating: 7.6, popularity: 92.1, voteCount: 640000,
+   186→      directorId: people['James Cameron'],
+   187→      genreNames: ['Action', 'Adventure', 'Sci-Fi'],
+   188→      castNames: ['Sam Worthington', 'Zoe Saldana', 'Kate Winslet'],
+   189→      platformNames: ['Disney+', 'HBO Max'],
+   190→    },
+   191→    {
+   192→      title: 'The Shawshank Redemption', description: 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.',
+   193→      releaseYear: 1994, runtime: 142, language: 'English', country: 'USA', ageCertification: 'R',
+   194→      rating: 9.3, popularity: 88.0, voteCount: 2800000,
+   195→      directorId: people['Martin Scorsese'],
+   196→      genreNames: ['Drama'],
+   197→      castNames: ['Tim Robbins', 'Morgan Freeman'],
+   198→      platformNames: ['Netflix', 'Hulu'],
+   199→    },
+   200→    {
+   201→      title: 'Goodfellas', description: 'The story of Henry Hill and his life in the mob, covering his relationship with his wife Karen Hill and his mob partners.',
+   202→      releaseYear: 1990, runtime: 146, language: 'English', country: 'USA', ageCertification: 'R',
+   203→      rating: 8.7, popularity: 80.2, voteCount: 1200000,
+   204→      directorId: people['Martin Scorsese'],
+   205→      genreNames: ['Biography', 'Crime', 'Drama'],
+   206→      castNames: ['Robert De Niro', 'Ray Liotta', 'Joe Pesci'],
+   207→      platformNames: ['HBO Max', 'Amazon Prime Video'],
+   208→    },
+   209→    {
+   210→      title: 'The Wolf of Wall Street', description: 'Based on the true story of Jordan Belfort, from his rise to a wealthy stock-broker living the high life to his fall involving crime, corruption and the federal government.',
+   211→      releaseYear: 2013, runtime: 180, language: 'English', country: 'USA', ageCertification: 'R',
+   212→      rating: 8.2, popularity: 86.9, voteCount: 1350000,
+   213→      directorId: people['Martin Scorsese'],
+   214→      genreNames: ['Biography', 'Crime', 'Drama'],
+   215→      castNames: ['Leonardo DiCaprio', 'Jonah Hill', 'Margot Robbie'],
+   216→      platformNames: ['Netflix', 'Amazon Prime Video'],
+   217→    },
+   218→    {
+   219→      title: 'Gladiator', description: 'A former Roman General sets out to exact vengeance against the corrupt emperor who murdered his family and sent him into slavery.',
+   220→      releaseYear: 2000, runtime: 155, language: 'English', country: 'USA', ageCertification: 'R',
+   221→      rating: 8.5, popularity: 82.8, voteCount: 1650000,
+   222→      directorId: people['Ridley Scott'],
+   223→      genreNames: ['Action', 'Adventure', 'Drama'],
+   224→      castNames: ['Russell Crowe', 'Joaquin Phoenix', 'Connie Nielsen'],
+   225→      platformNames: ['Netflix', 'Amazon Prime Video'],
+   226→    },
+   227→    {
+   228→      title: 'Alien', description: 'After investigating a mysterious transmission, the crew of a commercial spacecraft encounters a deadly lifeform.',
+   229→      releaseYear: 1979, runtime: 117, language: 'English', country: 'USA', ageCertification: 'R',
+   230→      rating: 8.5, popularity: 78.4, voteCount: 890000,
+   231→      directorId: people['Ridley Scott'],
+   232→      genreNames: ['Horror', 'Sci-Fi', 'Thriller'],
+   233→      castNames: ['Sigourney Weaver', 'Tom Skerritt', 'John Hurt'],
+   234→      platformNames: ['Hulu', 'Disney+'],
+   235→    },
+   236→    {
+   237→      title: 'Schindler\'s List', description: 'In German-occupied Poland during World War II, industrialist Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.',
+   238→      releaseYear: 1993, runtime: 195, language: 'English', country: 'USA', ageCertification: 'R',
+   239→      rating: 9.0, popularity: 81.5, voteCount: 1400000,
+   240→      directorId: people['Steven Spielberg'],
+   241→      genreNames: ['Biography', 'Drama', 'History'],
+   242→      castNames: ['Liam Neeson', 'Ralph Fiennes', 'Ben Kingsley'],
+   243→      platformNames: ['Netflix', 'Amazon Prime Video'],
+   244→    },
+   245→    {
+   246→      title: 'Jurassic Park', description: 'A pragmatic paleontologist touring an almost complete theme park is tasked with protecting a pair of kids after a power failure causes the park\'s cloned dinosaurs to run loose.',
+   247→      releaseYear: 1993, runtime: 127, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   248→      rating: 8.2, popularity: 83.6, voteCount: 1100000,
+   249→      directorId: people['Steven Spielberg'],
+   250→      genreNames: ['Action', 'Adventure', 'Sci-Fi'],
+   251→      castNames: ['Sam Neill', 'Laura Dern', 'Jeff Goldblum'],
+   252→      platformNames: ['Netflix', 'Amazon Prime Video'],
+   253→    },
+   254→    {
+   255→      title: 'The Lord of the Rings: The Return of the King', description: 'Gandalf and Aragorn lead the World of Men against Sauron\'s army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.',
+   256→      releaseYear: 2003, runtime: 201, language: 'English', country: 'New Zealand', ageCertification: 'PG-13',
+   257→      rating: 9.0, popularity: 86.7, voteCount: 1900000,
+   258→      directorId: people['Peter Jackson'],
+   259→      genreNames: ['Action', 'Adventure', 'Drama', 'Fantasy'],
+   260→      castNames: ['Elijah Wood', 'Viggo Mortensen', 'Ian McKellen'],
+   261→      platformNames: ['HBO Max', 'Amazon Prime Video'],
+   262→    },
+   263→    {
+   264→      title: 'Fight Club', description: 'An insomniac office worker and a devil-may-care soap maker form an underground fight club that evolves into much more.',
+   265→      releaseYear: 1999, runtime: 139, language: 'English', country: 'USA', ageCertification: 'R',
+   266→      rating: 8.8, popularity: 84.5, voteCount: 2200000,
+   267→      directorId: people['David Fincher'],
+   268→      genreNames: ['Drama'],
+   269→      castNames: ['Brad Pitt', 'Edward Norton', 'Helena Bonham Carter'],
+   270→      platformNames: ['Netflix', 'Hulu'],
+   271→    },
+   272→    {
+   273→      title: 'The Social Network', description: 'As Harvard student Mark Zuckerberg creates the social networking site that would become known as Facebook, he is sued by the twins who claimed he stole their idea.',
+   274→      releaseYear: 2010, runtime: 120, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   275→      rating: 7.8, popularity: 73.2, voteCount: 750000,
+   276→      directorId: people['David Fincher'],
+   277→      genreNames: ['Biography', 'Drama'],
+   278→      castNames: ['Jesse Eisenberg', 'Andrew Garfield', 'Justin Timberlake'],
+   279→      platformNames: ['Netflix', 'Amazon Prime Video'],
+   280→    },
+   281→    {
+   282→      title: 'Jojo Rabbit', description: 'A young German boy in the Hitler Youth whose imaginary friend is Adolf Hitler discovers that his mother is hiding a Jewish girl in their home.',
+   283→      releaseYear: 2019, runtime: 108, language: 'English', country: 'New Zealand', ageCertification: 'PG-13',
+   284→      rating: 7.9, popularity: 70.8, voteCount: 420000,
+   285→      directorId: people['Taika Waititi'],
+   286→      genreNames: ['Comedy', 'Drama', 'War'],
+   287→      castNames: ['Roman Griffin Davis', 'Thomasin McKenzie', 'Scarlett Johansson'],
+   288→      platformNames: ['Disney+', 'Hulu'],
+   289→    },
+   290→    {
+   291→      title: 'Everything Everywhere All at Once', description: 'A middle-aged Chinese immigrant is swept up into an insane adventure in which she alone can save existence by exploring other universes and connecting with the lives she could have led.',
+   292→      releaseYear: 2022, runtime: 139, language: 'English', country: 'USA', ageCertification: 'R',
+   293→      rating: 7.8, popularity: 89.4, voteCount: 680000,
+   294→      directorId: people['Daniel Kwan'],
+   295→      genreNames: ['Action', 'Adventure', 'Comedy', 'Fantasy'],
+   296→      castNames: ['Michelle Yeoh', 'Stephanie Hsu', 'Ke Huy Quan'],
+   297→      platformNames: ['Amazon Prime Video', 'Hulu'],
+   298→    },
+   299→    {
+   300→      title: 'The Matrix', description: 'When a beautiful stranger leads computer hacker Neo to a forbidding underworld, he discovers the shocking truth--the life he knows is the elaborate deception of an evil cyber-intelligence.',
+   301→      releaseYear: 1999, runtime: 136, language: 'English', country: 'USA', ageCertification: 'R',
+   302→      rating: 8.7, popularity: 85.9, voteCount: 1900000,
+   303→      directorId: people['Lana Wachowski'],
+   304→      genreNames: ['Action', 'Sci-Fi'],
+   305→      castNames: ['Keanu Reeves', 'Laurence Fishburne', 'Carrie-Anne Moss'],
+   306→      platformNames: ['HBO Max', 'Hulu'],
+   307→    },
+   308→    {
+   309→      title: 'Dune', description: 'Feature adaptation of Frank Herbert\'s science fiction novel about the son of a noble family entrusted with the protection of the most valuable asset in the galaxy.',
+   310→      releaseYear: 2021, runtime: 155, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   311→      rating: 8.0, popularity: 88.7, voteCount: 820000,
+   312→      directorId: people['Denis Villeneuve'],
+   313→      genreNames: ['Action', 'Adventure', 'Drama', 'Sci-Fi'],
+   314→      castNames: ['Timothée Chalamet', 'Rebecca Ferguson', 'Zendaya'],
+   315→      platformNames: ['HBO Max', 'Amazon Prime Video'],
+   316→    },
+   317→    {
+   318→      title: 'Knives Out', description: 'A detective investigates the death of the patriarch of an eccentric, combative family.',
+   319→      releaseYear: 2019, runtime: 130, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   320→      rating: 7.9, popularity: 80.6, voteCount: 580000,
+   321→      directorId: people['Rian Johnson'],
+   322→      genreNames: ['Comedy', 'Crime', 'Drama', 'Mystery'],
+   323→      castNames: ['Daniel Craig', 'Chris Evans', 'Ana de Armas'],
+   324→      platformNames: ['Amazon Prime Video', 'Hulu'],
+   325→    },
+   326→    {
+   327→      title: 'The Batman', description: 'When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate the city\'s hidden corruption and question his family\'s involvement.',
+   328→      releaseYear: 2022, runtime: 176, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   329→      rating: 7.8, popularity: 91.5, voteCount: 720000,
+   330→      directorId: people['Matt Reeves'],
+   331→      genreNames: ['Action', 'Crime', 'Drama'],
+   332→      castNames: ['Robert Pattinson', 'Zoë Kravitz', 'Paul Dano'],
+   333→      platformNames: ['HBO Max', 'Hulu'],
+   334→    },
+   335→    {
+   336→      title: 'Spider-Man: Across the Spider-Verse', description: 'Miles Morales catapults across the multiverse, where he encounters a team of Spider-People charged with protecting its very existence.',
+   337→      releaseYear: 2023, runtime: 140, language: 'English', country: 'USA', ageCertification: 'PG',
+   338→      rating: 8.7, popularity: 93.2, voteCount: 340000,
+   339→      directorId: people['Joaquim Dos Santos'],
+   340→      genreNames: ['Action', 'Adventure', 'Animation', 'Fantasy'],
+   341→      castNames: ['Shameik Moore', 'Hailee Steinfeld', 'Oscar Isaac'],
+   342→      platformNames: ['Netflix', 'Disney+'],
+   343→    },
+   344→    {
+   345→      title: 'Spirited Away', description: 'During her family\'s move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods, witches, and spirits.',
+   346→      releaseYear: 2001, runtime: 125, language: 'Japanese', country: 'Japan', ageCertification: 'PG',
+   347→      rating: 8.6, popularity: 77.8, voteCount: 820000,
+   348→      directorId: people['Hayao Miyazaki'],
+   349→      genreNames: ['Animation', 'Adventure', 'Family', 'Fantasy'],
+   350→      castNames: ['Rumi Hiiragi', 'Miyu Irino', 'Mari Natsuki'],
+   351→      platformNames: ['HBO Max', 'Disney+'],
+   352→    },
+   353→    {
+   354→      title: 'The Godfather', description: 'The aging patriarch of an organized crime dynasty in postwar New York City transfers control of his clandestine empire to his reluctant youngest son.',
+   355→      releaseYear: 1972, runtime: 175, language: 'English', country: 'USA', ageCertification: 'R',
+   356→      rating: 9.2, popularity: 83.1, voteCount: 1900000,
+   357→      directorId: people['Francis Ford Coppola'],
+   358→      genreNames: ['Crime', 'Drama'],
+   359→      castNames: ['Marlon Brando', 'Al Pacino', 'James Caan'],
+   360→      platformNames: ['Amazon Prime Video', 'HBO Max'],
+   361→    },
+   362→    {
+   363→      title: 'Forrest Gump', description: 'The presidencies of Kennedy and Johnson, the Vietnam War, the Watergate scandal and other historical events unfold from the perspective of an Alabama man with an IQ of 75.',
+   364→      releaseYear: 1994, runtime: 142, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   365→      rating: 8.8, popularity: 85.3, voteCount: 2100000,
+   366→      directorId: people['Robert Zemeckis'],
+   367→      genreNames: ['Drama', 'Romance'],
+   368→      castNames: ['Tom Hanks', 'Robin Wright', 'Gary Sinise'],
+   369→      platformNames: ['Netflix', 'Amazon Prime Video'],
+   370→    },
+   371→    {
+   372→      title: 'The Truman Show', description: 'An insurance salesman discovers his whole life is actually a reality TV show.',
+   373→      releaseYear: 1998, runtime: 103, language: 'English', country: 'USA', ageCertification: 'PG',
+   374→      rating: 8.2, popularity: 76.9, voteCount: 980000,
+   375→      directorId: people['Peter Weir'],
+   376→      genreNames: ['Comedy', 'Drama', 'Sci-Fi'],
+   377→      castNames: ['Jim Carrey', 'Ed Harris', 'Laura Linney'],
+   378→      platformNames: ['Hulu', 'Amazon Prime Video'],
+   379→    },
+   380→    {
+   381→      title: 'Whiplash', description: 'A promising young drummer enrolls at a cut-throat music conservatory where his dreams of greatness are mentored by an instructor who will stop at nothing to realize a student\'s potential.',
+   382→      releaseYear: 2014, runtime: 106, language: 'English', country: 'USA', ageCertification: 'R',
+   383→      rating: 8.5, popularity: 79.1, voteCount: 920000,
+   384→      directorId: people['Damien Chazelle'],
+   385→      genreNames: ['Drama', 'Musical'],
+   386→      castNames: ['Miles Teller', 'J.K. Simmons', 'Melissa Benoist'],
+   387→      platformNames: ['Netflix', 'Hulu'],
+   388→    },
+   389→    {
+   390→      title: 'Poor Things', description: 'The incredible tale about the fantastical evolution of Bella Baxter, a young woman brought back to life by the brilliant and unorthodox scientist Dr. Godwin Baxter.',
+   391→      releaseYear: 2023, runtime: 141, language: 'English', country: 'Ireland', ageCertification: 'R',
+   392→      rating: 8.0, popularity: 82.7, voteCount: 310000,
+   393→      directorId: people['Yorgos Lanthimos'],
+   394→      genreNames: ['Comedy', 'Drama', 'Romance', 'Sci-Fi'],
+   395→      castNames: ['Emma Stone', 'Mark Ruffalo', 'Willem Dafoe'],
+   396→      platformNames: ['Hulu', 'Amazon Prime Video'],
+   397→    },
+   398→    {
+   399→      title: 'Past Lives', description: 'Nora and Hae Sung, two deeply connected childhood friends, are wrested apart after Nora\'s family emigrates from South Korea. Twenty years later, they are reunited for one fateful week.',
+   400→      releaseYear: 2023, runtime: 105, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   401→      rating: 7.8, popularity: 75.4, voteCount: 180000,
+   402→      directorId: people['Celine Song'],
+   403→      genreNames: ['Drama', 'Romance'],
+   404→      castNames: ['Greta Lee', 'Teo Yoo', 'John Magaro'],
+   405→      platformNames: ['Amazon Prime Video'],
+   406→    },
+   407→    {
+   408→      title: 'John Wick: Chapter 4', description: 'John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe.',
+   409→      releaseYear: 2023, runtime: 169, language: 'English', country: 'USA', ageCertification: 'R',
+   410→      rating: 7.7, popularity: 90.8, voteCount: 440000,
+   411→      directorId: people['Chad Stahelski'],
+   412→      genreNames: ['Action', 'Crime', 'Thriller'],
+   413→      castNames: ['Keanu Reeves', 'Donnie Yen', 'Bill Skarsgård'],
+   414→      platformNames: ['Amazon Prime Video'],
+   415→    },
+   416→    {
+   417→      title: 'The Holdovers', description: 'A curmudgeonly instructor at a New England prep school is forced to remain on campus during Christmas break to babysit a handful of students with nowhere to go.',
+   418→      releaseYear: 2023, runtime: 133, language: 'English', country: 'USA', ageCertification: 'R',
+   419→      rating: 8.1, popularity: 72.3, voteCount: 210000,
+   420→      directorId: people['Alexander Payne'],
+   421→      genreNames: ['Comedy', 'Drama'],
+   422→      castNames: ['Paul Giamatti', 'Da\'Vine Joy Randolph', 'Dominic Sessa'],
+   423→      platformNames: ['Hulu', 'Amazon Prime Video'],
+   424→    },
+   425→    {
+   426→      title: 'Top Gun: Maverick', description: 'After thirty years of service as one of the Navy\'s top aviators, Pete "Maverick" Mitchell is where he belongs, pushing the envelope as a courageous test pilot.',
+   427→      releaseYear: 2022, runtime: 131, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   428→      rating: 8.3, popularity: 94.5, voteCount: 560000,
+   429→      directorId: people['Joseph Kosinski'],
+   430→      genreNames: ['Action', 'Drama'],
+   431→      castNames: ['Tom Cruise', 'Miles Teller', 'Jennifer Connelly'],
+   432→      platformNames: ['Amazon Prime Video', 'Apple TV+'],
+   433→    },
+   434→    {
+   435→      title: 'La La Land', description: 'While navigating their careers in Los Angeles, a pianist and an actress fall in love while attempting to reconcile their aspirations for the future.',
+   436→      releaseYear: 2016, runtime: 128, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   437→      rating: 8.0, popularity: 80.1, voteCount: 780000,
+   438→      directorId: people['Damien Chazelle'],
+   439→      genreNames: ['Comedy', 'Drama', 'Musical', 'Romance'],
+   440→      castNames: ['Ryan Gosling', 'Emma Stone', 'John Legend'],
+   441→      platformNames: ['Netflix', 'Hulu'],
+   442→    },
+   443→    {
+   444→      title: 'Mad Max: Fury Road', description: 'In a post-apocalyptic wasteland, a woman rebels against a tyrannical ruler in search for her homeland with the aid of a group of female prisoners, a psychotic worshiper, and a drifter named Max.',
+   445→      releaseYear: 2015, runtime: 120, language: 'English', country: 'Australia', ageCertification: 'R',
+   446→      rating: 8.1, popularity: 81.3, voteCount: 1100000,
+   447→      directorId: people['George Miller'],
+   448→      genreNames: ['Action', 'Adventure', 'Sci-Fi'],
+   449→      castNames: ['Tom Hardy', 'Charlize Theron', 'Nicholas Hoult'],
+   450→      platformNames: ['HBO Max', 'Hulu'],
+   451→    },
+   452→    {
+   453→      title: 'The Prestige', description: 'After a tragic accident, two stage magicians in 1890s London engage in a battle to create the ultimate illusion while sacrificing everything they have to outwit each other.',
+   454→      releaseYear: 2006, runtime: 130, language: 'English', country: 'USA', ageCertification: 'PG-13',
+   455→      rating: 8.5, popularity: 81.7, voteCount: 1400000,
+   456→      directorId: people['Christopher Nolan'],
+   457→      genreNames: ['Drama', 'Mystery', 'Sci-Fi', 'Thriller'],
+   458→      castNames: ['Christian Bale', 'Hugh Jackman', 'Scarlett Johansson'],
+   459→      platformNames: ['Netflix', 'HBO Max'],
+   460→    },
+   461→    {
+   462→      title: 'No Country for Old Men', description: 'Violence and mayhem ensue after a hunter stumbles upon a drug deal gone wrong and more than two million dollars in cash near the Rio Grande.',
+   463→      releaseYear: 2007, runtime: 122, language: 'English', country: 'USA', ageCertification: 'R',
+   464→      rating: 8.2, popularity: 77.6, voteCount: 980000,
+   465→      directorId: people['Ethan Coen'],
+   466→      genreNames: ['Crime', 'Drama', 'Thriller'],
+   467→      castNames: ['Javier Bardem', 'Josh Brolin', 'Tommy Lee Jones'],
+   468→      platformNames: ['Netflix', 'Amazon Prime Video'],
+   469→    },
+   470→    {
+   471→      title: 'Snatch', description: 'Unscrupulous boxing promoters, violent bookmakers, a Russian gangster, incompetent amateur robbers, and supposedly Jewish jewelers fight to track down a priceless stolen diamond.',
+   472→      releaseYear: 2000, runtime: 104, language: 'English', country: 'UK', ageCertification: 'R',
+   473→      rating: 8.2, popularity: 73.8, voteCount: 870000,
+   474→      directorId: people['Guy Ritchie'],
+   475→      genreNames: ['Comedy', 'Crime'],
+   476→      castNames: ['Brad Pitt', 'Jason Statham', 'Benicio Del Toro'],
+   477→      platformNames: ['Amazon Prime Video', 'Hulu'],
+   478→    },
+   479→  ];
+   480→
+   481→  // Create movies and relations
+   482→  const movieIds: string[] = [];
+   483→  for (const m of movies) {
+   484→    const movie = await prisma.movie.create({
+   485→      data: {
+   486→        title: m.title,
+   487→        description: m.description,
+   488→        releaseYear: m.releaseYear,
+   489→        runtime: m.runtime,
+   490→        language: m.language,
+   491→        country: m.country,
+   492→        ageCertification: m.ageCertification,
+   493→        rating: m.rating,
+   494→        popularity: m.popularity,
+   495→        voteCount: m.voteCount,
+   496→        directorId: m.directorId,
+   497→      }
+   498→    });
+   499→    movieIds.push(movie.id);
+   500→
+   501→    // Create genre relations
+   502→    for (const gName of m.genreNames) {
+   503→      if (genres[gName]) {
+   504→        await prisma.movieGenre.create({
+   505→          data: { movieId: movie.id, genreId: genres[gName] }
+   506→        });
+   507→      }
+   508→    }
+   509→
+   510→    // Create cast relations
+   511→    for (let i = 0; i < Math.min(m.castNames.length, 5); i++) {
+   512→      const castName = m.castNames[i];
+   513→      if (people[castName]) {
+   514→        await prisma.movieCast.create({
+   515→          data: { movieId: movie.id, personId: people[castName], character: castName }
+   516→        });
+   517→      }
+   518→    }
+   519→
+   520→    // Create streaming platform relations
+   521→    for (const pName of m.platformNames) {
+   522→      if (platformMap[pName]) {
+   523→        await prisma.movieStreaming.create({
+   524→          data: { movieId: movie.id, platformId: platformMap[pName] }
+   525→        });
+   526→      }
+   527→    }
+   528→  }
+   529→
+   530→  // --- Create a default user ---
+   531→  const user = await prisma.user.create({
+   532→    data: { email: 'viewer@cineverse.app', name: 'Movie Fan' }
+   533→  });
+   534→
+   535→  // --- Create some sample activities ---
+   536→  const activityTypes = ['VIEW', 'LIKE', 'RATE'];
+   537→  for (let i = 0; i < 15; i++) {
+   538→    const movieId = movieIds[i % movieIds.length];
+   539→    const type = activityTypes[i % 3];
+   540→    await prisma.userActivity.create({
+   541→      data: {
+   542→        userId: user.id,
+   543→        movieId,
+   544→        activityType: type,
+   545→        userRating: type === 'RATE' ? 6 + Math.random() * 3.5 : null,
+   546→      }
+   547→    });
+   548→  }
+   549→
+   550→  // --- Create some watchlist entries ---
+   551→  for (let i = 0; i < 8; i++) {
+   552→    const movieId = movieIds[(i * 5) % movieIds.length];
+   553→    const statuses = ['PLAN_TO_WATCH', 'WATCHING', 'COMPLETED'];
+   554→    try {
+   555→      await prisma.watchlist.create({
+   556→        data: {
+   557→          userId: user.id,
+   558→          movieId,
+   559→          status: statuses[i % 3],
+   560→        }
+   561→      });
+   562→    } catch { /* unique constraint - skip duplicates */ }
+   563→  }
+   564→
+   565→  console.log('Seed completed successfully!');
+   566→  console.log(`Created ${movies.length} movies, ${genreData.length} genres, ${platforms.length} platforms`);
+   567→  console.log(`Default user: ${user.email} (${user.id})`);
+   568→}
+   569→
+   570→main()
+   571→  .catch(console.error)
+   572→  .finally(() => prisma.$disconnect());
+   573→

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get('userId') || 'cmt6vc5pl0040t03x6xgkez59';
+  const userId = req.nextUrl.searchParams.get('userId') || 'cmt7ech7d0040ngkzxi5iarq2';
 
   // Gather user signals
   const activities = await db.userActivity.findMany({
